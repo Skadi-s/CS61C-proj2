@@ -4,15 +4,18 @@
 # =================================================================
 # FUNCTION: Given an int return its absolute value.
 # Arguments:
-# 	a0 (int) is input integer
+#   a0 (int) is input integer
 # Returns:
-#	a0 (int) the absolute value of the input
+#   a0 (int) the absolute value of the input
 # =================================================================
 abs:
     # Prologue
+    # Check if the input is non-negative; if so, jump to done
+    bge a0, zero, done
+    # Negate the input if it's negative
+    sub a0, zero, a0
 
-    # return 0
-    mv a0, zero
+done:
 
     # Epilogue
 
