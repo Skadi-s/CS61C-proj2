@@ -49,6 +49,13 @@ class TestRelu(TestCase):
         t.check_array(array0, [1, 0, 3, 0, 5, 0, 7, 0, 9])
         # generate the `assembly/TestRelu_test_simple.s` file and run it through venus
         t.execute()
+    
+    def test_invalid_length(self):
+        t = AssemblyTest(self, "relu.s")
+        # Test length validation
+        t.input_scalar("a2", 0)
+        t.call("relu")
+        t.execute(code=78)
 
     @classmethod
     def tearDownClass(cls):
@@ -71,6 +78,13 @@ class TestArgmax(TestCase):
         t.check_scalar("a0", 8)
         # generate the `assembly/TestArgmax_test_simple.s` file and run it through venus
         t.execute()
+
+    def test_invalid_length(self):
+        t = AssemblyTest(self, "argmax.s")
+        # Test length validation
+        t.input_scalar("a2", 0)
+        t.call("argmax")
+        t.execute(code=77)
 
     @classmethod
     def tearDownClass(cls):
