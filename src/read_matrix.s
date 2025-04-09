@@ -1,6 +1,4 @@
-.include "utils.s"
-
-.globl read_matrix
+/globl read_matrix
 
 .text
 # ==============================================================================
@@ -26,6 +24,11 @@
 # - If you receive an fclose error or eof,
 #   this function terminates the program with error code 92.
 # ==============================================================================
+.include "utils.s"
+
+.globl read_matrix
+
+.text
 read_matrix:
     # Prologue: 保存寄存器
     addi sp, sp, -32
@@ -149,6 +152,6 @@ fclose_error:
     li a0, 92
     j exit2
 
-.section .rodata
+.data
 .L.str:
     .asciz "r"
