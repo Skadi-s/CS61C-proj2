@@ -80,23 +80,96 @@ class TestArgmax(TestCase):
 class TestDot(TestCase):
     def test_simple(self):
         t = AssemblyTest(self, "dot.s")
-        # create arrays in the data section
-        raise NotImplementedError("TODO")
-        # TODO
-        # load array addresses into argument registers
-        # TODO
-        # load array attributes into argument registers
-        # TODO
-        # call the `dot` function
+        # Test basic dot product with stride 1
+        v0 = t.array([1, 2, 3])
+        v1 = t.array([4, 5, 6])
+        t.input_array("a0", v0)
+        t.input_array("a1", v1)
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 1)
+        t.input_scalar("a4", 1)
         t.call("dot")
-        # check the return value
-        # TODO
+        t.check_scalar("a0", 32)  # 1 * 4 + 2 * 5 + 3 * 6 = 32
         t.execute()
+
+    def test_stride_handling(self):
+        t = AssemblyTest(self, "dot.s")
+        # Test different strides (v0 stride=2, v1 stride=1)
+        v0 = t.array([1, 0, 2, 0, 3, 0])
+        v1 = t.array([4, 5, 6])
+        t.input_array("a0", v0)
+        t.input_array("a1", v1)
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 2)
+        t.input_scalar("a4", 1)
+        t.call("dot")
+        t.check_scalar("a0", 32)  # 1 * 4 + 2 * 5 + 3 * 6 = 32
+        t.execute()
+
+    def test_negative_values(self):
+        t = AssemblyTest(self, "dot.s")
+        # Test with negative numbers
+        v0 = t.array([-1, 2, -3])
+        v1 = t.array([4, -5, 6])
+        t.input_array("a0", v0)
+        t.input_array("a1", v1)
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 1)
+        t.input_scalar("a4", 1)
+        t.call("dot")
+        t.check_scalar("a0", -32)  # -1 * 4 + 2*-5 + -3 * 6 = -32
+        t.execute()
+
+    def test_single_element(self):
+        t = AssemblyTest(self, "dot.s")
+        # Test single element vectors
+        v0 = t.array([5])
+        v1 = t.array([6])
+        t.input_array("a0", v0)
+        t.input_array("a1", v1)
+        t.input_scalar("a2", 1)
+        t.input_scalar("a3", 1)
+        t.input_scalar("a4", 1)
+        t.call("dot")
+        t.check_scalar("a0", 30)
+        t.execute()
+
+    def test_invalid_length(self):
+        t = AssemblyTest(self, "dot.s")
+        # Test length validation
+        t.input_scalar("a2", 0)
+        t.call("dot")
+        t.execute(code=75)
+
+    def test_invalid_stride_v0(self):
+        t = AssemblyTest(self, "dot.s")
+        # Test v0 stride validation
+        v0 = t.array([1])
+        v1 = t.array([2])
+        t.input_array("a0", v0)
+        t.input_array("a1", v1)
+        t.input_scalar("a2", 1)
+        t.input_scalar("a3", 0)
+        t.input_scalar("a4", 1)
+        t.call("dot")
+        t.execute(code=76)
+
+    def test_invalid_stride_v1(self):
+        t = AssemblyTest(self, "dot.s")
+        # Test v1 stride validation
+        v0 = t.array([1])
+        v1 = t.array([2])
+        t.input_array("a0", v0)
+        t.input_array("a1", v1)
+        t.input_scalar("a2", 1)
+        t.input_scalar("a3", 1)
+        t.input_scalar("a4", 0)
+        t.call("dot")
+        t.execute(code=76)
 
     @classmethod
     def tearDownClass(cls):
         print_coverage("dot.s", verbose=False)
-
 
 class TestMatmul(TestCase):
 
