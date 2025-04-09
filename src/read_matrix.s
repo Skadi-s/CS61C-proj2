@@ -1,6 +1,4 @@
-.include "utils.s"
-
-.globl read_matrix
+/globl read_matrix
 
 .text
 # ==============================================================================
@@ -154,6 +152,6 @@ fclose_error:
     li a0, 92
     j exit2
 
-.section .rodata
+.data
 .L.str:
     .asciz "r"
