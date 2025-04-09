@@ -57,10 +57,12 @@ loop_end:
 
 error_length:
     li a0, 75           # Load error code 75
-    li a7, 93           # Exit syscall
-    ecall
+    jal exit
 
 error_stride:
     li a0, 76           # Load error code 76
-    li a7, 93           # Exit syscall
+    jal exit
+
+exit:
+    li a7, 93
     ecall

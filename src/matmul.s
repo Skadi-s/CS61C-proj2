@@ -124,15 +124,16 @@ outer_loop_end:
 
 m0_error:
     li a0, 72
-    li a7, 93
-    ecall
+    jal exit
 
 m1_error:
     li a0, 73
-    li a7, 93
-    ecall
+    jal exit
 
 mismatch_error:
     li a0, 74
+    jal exit
+
+exit:
     li a7, 93
     ecall
