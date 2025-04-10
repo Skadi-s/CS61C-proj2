@@ -219,6 +219,25 @@ class TestMatmul(TestCase):
         expected = [19, 22, 43, 50]  # Result
         self.do_matmul(m0, 2, 2, m1, 2, 2, expected)
 
+    def test_m0_error(self):
+        m0 = [1, 2, 3, 4]    # 2x2 matrix
+        m1 = [5, 6, 7, 8]    # 2x2 matrix
+        expected = [19, 22, 43, 50]
+        self.do_matmul(m0, 2, 0, m1, 2, 2, expected, code=72)
+
+    def test_m1_error(self):
+        m0 = [1, 2, 3, 4]    # 2x2 matrix
+        m1 = [5, 6, 7, 8]    # 2x2 matrix
+        expected = [19, 22, 43, 50]
+        self.do_matmul(m0, 2, 2, m1, 0, 2, expected, code=73)
+
+    def test_mismatch_error(self):
+        m0 = [1, 2, 3, 4]    # 2x2 matrix
+        m1 = [5, 6, 7, 8, 9, 10]    # 3x2 matrix
+        expected = [19, 22, 43, 50]
+        self.do_matmul(m0, 2, 2, m1, 3, 2, expected, code=74)
+
+
     @classmethod
     def tearDownClass(cls):
         print_coverage("matmul.s", verbose=False)
