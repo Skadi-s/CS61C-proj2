@@ -20,10 +20,9 @@
 dot:
     # Check for invalid length (a2 < 1)
     li t0, 1
-    
     blt a2, t0, error_length  # Check length first
-    blt a3, t0, error_stride   # Then check stride0
-    blt a4, t0, error_stride   # Finally check stride1
+    blt a3, t0, error_stride  # Then check stride0
+    blt a4, t0, error_stride  # Finally check stride1
 
     # Initialize sum and loop counter
     li t6, 0            # t6 = sum
@@ -56,13 +55,9 @@ loop_end:
     ret
 
 error_length:
-    li a0, 75           # Load error code 75
-    jal exit
+    li a1, 75           # Load error code 75
+    jal exit2           # Call exit2 from utils.s
 
 error_stride:
-    li a0, 76           # Load error code 76
-    jal exit
-
-exit:
-    li a7, 93
-    ecall
+    li a1, 76           # Load error code 76
+    jal exit2           # Call exit2 from utils.s

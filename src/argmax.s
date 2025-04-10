@@ -50,8 +50,6 @@ loop_end:
     ret
 
 error_exit:
-    # Exit with error code 77
-    li a0, 77
-    li a7, 93           # Syscall exit code
-    ecall
-    
+    # Exit with error code 77 using utils.s helper function
+    li a1, 77           # Error code
+    jal exit2           # Call exit2 from utils.s
