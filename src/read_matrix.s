@@ -28,12 +28,13 @@
 read_matrix:
     # Prologue: 保存寄存器
     addi sp, sp, -24
-    sw ra, 20(sp)
-    sw s0, 16(sp)
-    sw s1, 12(sp)
-    sw s2, 8(sp)
-    sw s3, 4(sp)
-    sw s4, 0(sp)
+    sw ra, 24(sp)
+    sw s0, 20(sp)
+    sw s1, 16(sp)
+    sw s2, 12(sp)
+    sw s3, 8(sp)
+    sw s4, 4(sp)
+    sw s5, 0(sp)
 
     # 保存参数
     mv s0, a0        # 文件名指针
@@ -77,12 +78,21 @@ read_matrix:
     jal fread
     bne a0, t0, fread_error
 
-    lw ra, 20(sp)
-    lw s0, 16(sp)
-    lw s1, 12(sp)
-    lw s2, 8(sp)
-    lw s3, 4(sp)
-    lw s4, 0(sp)
+    mv s5, a0
+    mv a1, s3
+    jal fclose
+    li t0, -1
+    beq a0, t0, fclose_error
+
+    mv a0, s5
+
+    lw ra, 24(sp)
+    lw s0, 20(sp)
+    lw s1, 16(sp)
+    lw s2, 12(sp)
+    lw s3, 8(sp)
+    lw s4, 4(sp)
+    lw s5, 0(sp)
 
     addi sp, sp, 24
     ret

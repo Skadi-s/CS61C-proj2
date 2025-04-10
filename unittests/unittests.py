@@ -242,6 +242,9 @@ class TestMatmul(TestCase):
     def tearDownClass(cls):
         print_coverage("matmul.s", verbose=False)
 
+class TestReadMatrix(TestCase):
+        
+
 
 class TestMain(TestCase):
 
