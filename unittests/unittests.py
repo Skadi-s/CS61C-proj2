@@ -243,6 +243,23 @@ class TestMatmul(TestCase):
         print_coverage("matmul.s", verbose=False)
 
 
+class TestReadMatrix(TestCase):
+    def test_simple(self):
+        t = AssemblyTest(self, "read_matrix.s")
+        # file name for the input matrix
+        filename = "./inputs/simple0/bin/m0.bin"
+        # load the file name into register a0
+        t.input_read_filename("a0", filename)
+        # set a1 to the pointer to an int which represents the row of the matrix
+        t.input_array("a1",t.array([0]))
+        t.input_array("a2",t.array([0]))
+        # call the read_matrix function
+        t.call("read_matrix")
+        # check that the array0 was changed appropriately
+        t.check_array_pointer("a0", [1, 2, 3, 4, 5, 6, 7, 8, 9])
+        # generate the `assembly/TestReadMatrix_test_simple.s` file and run it through venus
+        t.execute()
+
 class TestMain(TestCase):
 
     def run_main(self, inputs, output_id, label):
