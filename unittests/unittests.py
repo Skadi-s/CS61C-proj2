@@ -243,7 +243,35 @@ class TestMatmul(TestCase):
         print_coverage("matmul.s", verbose=False)
 
 class TestReadMatrix(TestCase):
+    def test_simple(self):
+        # 正常读取测试：3x3矩阵
+        t = AssemblyTest(self, "read_matrix.s")
+
+        file_path = "../inputs/simple0/bin/m0.bin"
+        t.input_read_filename("a0", file_path)  # 文件名指针
+        t.input_array("a1", t.array([0]))      # 保存行的指针地址
+        t.input_array("a2", t.array([0]))      # 保存列的指针地址
         
+        excepted_matrix = [
+            1, 2, 3,
+            4, 5, 6,
+            7, 8, 9
+        ]
+        expected_rows = 3
+        expected_cols = 3
+
+        expected_matrix = t.array(excepted_matrix)
+        expected_rows = t.array([expected_rows])
+        expected_cols = t.array([expected_cols])
+        
+
+        # 调用函数
+        t.call("read_matrix")
+        t.check_array("a0", expected_matrix)  # 检查矩阵内容
+        t.check_array("a1", expected_rows)  # 检查行数
+        t.check_array("a2", expected_cols)
+        
+        t.execute()
 
 
 class TestMain(TestCase):
