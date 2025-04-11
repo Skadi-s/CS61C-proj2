@@ -303,6 +303,56 @@ class TestReadMatrix(TestCase):
     def tearDownClass(cls):
         print_coverage("read_matrix.s", verbose=False)
 
+class TestWriteMatrix(TestCase):
+    def test_simple(self):
+        t = AssemblyTest(self, "write_matrix.s")
+        # file name for the input matrix
+        filename = "./m0.bin"
+        # load the file name into register a0
+        t.input_write_filename("a0", filename)
+        # set a1 to the matrix
+        t.input_array("a1",t.array([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+        t.input_scalar("a2", 3)  # number of rows
+        t.input_scalar("a3", 3)
+        # call the read_matrix function
+        t.call("write_matrix")
+        # generate the `assembly/TestReadMatrix_test_simple.s` file and run it through venus
+        t.execute()
+
+    def test_fopen_error(self):
+        t = AssemblyTest(self, "write_matrix.s")
+        # Test fopen error
+        t.input_write_filename("a0", "./outputs/test_write_matrix/m0.bin")
+        t.input_array("a1",t.array([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 3)
+        t.call("write_matrix")
+        t.execute(fail="fopen", code=93)
+
+    def test_fwrite_error(self):
+        t = AssemblyTest(self, "write_matrix.s")
+        # Test fwrite error
+        t.input_write_filename("a0", "./m0.bin")
+        t.input_array("a1",t.array([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 3)
+        t.call("write_matrix")
+        t.execute(fail="fwrite", code=94)
+
+    def test_fclose_error(self):
+        t = AssemblyTest(self, "write_matrix.s")
+        # Test fclose error
+        t.input_write_filename("a0", "./m0.bin")
+        t.input_array("a1",t.array([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+        t.input_scalar("a2", 3)
+        t.input_scalar("a3", 3)
+        t.call("write_matrix")
+        t.execute(fail="fclose", code=95)
+
+    @classmethod
+    def tearDownClass(cls):
+        print_coverage("write_matrix.s", verbose=False)
+
 class TestMain(TestCase):
 
     def run_main(self, inputs, output_id, label):
