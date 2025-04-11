@@ -1,6 +1,5 @@
 .globl read_matrix
 
-.text
 # ==============================================================================
 # FUNCTION: Allocates memory and reads in a binary file as a matrix of integers
 #
@@ -26,89 +25,95 @@
 # ==============================================================================
 .text
 read_matrix:
-    # Prologue: 保存寄存器
-    addi sp, sp, -24
-    sw ra, 24(sp)
-    sw s0, 20(sp)
-    sw s1, 16(sp)
-    sw s2, 12(sp)
-    sw s3, 8(sp)
-    sw s4, 4(sp)
-    sw s5, 0(sp)
+    # Prologue: Save caller-saved registers
+    addi sp, sp, -32
+    sw ra, 28(sp)
+    sw s0, 24(sp)
+    sw s1, 20(sp)
+    sw s2, 16(sp)
+    sw s3, 12(sp)
+    sw s4, 8(sp)
+    sw s5, 4(sp)
+    sw s6, 0(sp)
 
-    # 保存参数
-    mv s0, a0        # 文件名指针
-    mv s1, a1        # save row
-    mv s2, a2        # save col
+    # Save function arguments
+    mv s0, a0        # Save filename pointer
+    mv s1, a1        # Save pointer to store rows
+    mv s2, a2        # Save pointer to store columns
 
-    # fopen
-    mv a1, s0
-    li a2, 0         # 模式字符串"r"
-    jal fopen        # 调用fopen
-    mv s3, a0        # 保存文件描述符 --> s3
+    # Open file using fopen
+    mv a1, s0        # Load filename into a1
+    li a2, 0         # Mode "r" (read-only)
+    jal fopen        # Call fopen
+    mv s3, a0        # Save file descriptor in s3
     li t0, -1
-    beq s3, t0, fopen_error
+    beq s3, t0, fopen_error  # If fopen fails, jump to error handler
 
-    # fread
-    mv a1, s0
-    addi sp, sp, -8
-    mv a2, sp
-    li a3, 8
-    jal fread
+    # Read the first 8 bytes (rows and columns)
+    mv a1, s3        # File descriptor
+    addi sp, sp, -8  # Allocate space for 8 bytes on the stack
+    mv a2, sp        # Buffer pointer
+    li a3, 8         # Number of bytes to read
+    jal fread        # Call fread
     li t0, 8
-    bne a0, t0, fread_error
+    bne a0, t0, fread_error  # If fread fails, jump to error handler
 
-    addi sp, sp, 8
-    lw t0, -4(sp)
-    lw t1, -8(sp)
-    sw t0, 0(s1)
-    sw t1, 0(s2)
+    # Load rows and columns from the buffer
+    lw t0, 4(sp)     # Load rows
+    lw t1, 0(sp)     # Load columns
+    addi sp, sp, 8   # Deallocate buffer space
+    sw t0, 0(s1)     # Store rows in the provided pointer
+    sw t1, 0(s2)     # Store columns in the provided pointer
 
+    # Allocate memory for the matrix
+    mul t0, t0, t1   # rows * columns
+    slli s6, t0, 2   # Multiply by 4 (size of int)
+    mv a0, s6        # Load size into a0
+    jal malloc       # Call malloc
+    beqz a0, malloc_error  # If malloc fails, jump to error handler
+    mv s4, a0        # Save matrix pointer
 
-    # malloc
-    mul t0, s1, s1
-    slli t0, 2
-    mv a0, t0
-    jal malloc
-    beqz a0, malloc_error
-    mv s4, a0
-    mv a1, s3
-    mv a2, s4
-    mv a3, t0
-    jal fread
-    bne a0, t0, fread_error
+    # Read matrix data into allocated memory
+    mv a1, s3        # File descriptor
+    mv a2, s4        # Buffer pointer (matrix memory)
+    mv a3, s6        # Number of bytes to read
+    jal fread        # Call fread
+    bne a0, s6, fread_error  # If fread fails, jump to error handler
 
-    mv s5, a0
-    mv a1, s3
-    jal fclose
+    # Close the file
+    mv a1, s3        # File descriptor
+    jal fclose       # Call fclose
     li t0, -1
-    beq a0, t0, fclose_error
+    beq a0, t0, fclose_error  # If fclose fails, jump to error handler
 
-    mv a0, s5
+    # Return the matrix pointer
+    mv a0, s4
 
-    lw ra, 24(sp)
-    lw s0, 20(sp)
-    lw s1, 16(sp)
-    lw s2, 12(sp)
-    lw s3, 8(sp)
-    lw s4, 4(sp)
-    lw s5, 0(sp)
-
-    addi sp, sp, 24
+    # Epilogue: Restore caller-saved registers
+    lw ra, 28(sp)
+    lw s0, 24(sp)
+    lw s1, 20(sp)
+    lw s2, 16(sp)
+    lw s3, 12(sp)
+    lw s4, 8(sp)
+    lw s5, 4(sp)
+    lw s6, 0(sp)
+    addi sp, sp, 32
     ret
 
+# Error handlers
 malloc_error:
-    li a1, 89
+    li a1, 88        # Error code for malloc failure
     jal exit2
 
 fopen_error:
-    li a1, 90
+    li a1, 90        # Error code for fopen failure
     jal exit2
 
 fread_error:
-    li a1, 91
+    li a1, 91        # Error code for fread failure
     jal exit2
 
 fclose_error:
-    li a1, 92
+    li a1, 92        # Error code for fclose failure
     jal exit2
