@@ -38,11 +38,12 @@ write_matrix:
     mv s3, a3   # Save cols
 
     # Open file
-    li a1, 1    # 'w' mode (encoded as 1 for simplicity)
+    mv a1, s0
+    li a2, 1
     jal fopen
     li t0, -1
     beq a0, t0, fopen_error
-    mv s4, a0   # Save file descriptor
+    mv s4, a0   # save file descriptor
 
     # Write dimensions
     addi sp, sp, -8
@@ -56,7 +57,7 @@ write_matrix:
     addi sp, sp, 8
 
     li t0, 2
-    bne a0, t0, fwrite_dims_error
+    bne a0, t0, fwrite_error
 
     # Write matrix data
     mv a1, s4
@@ -66,7 +67,7 @@ write_matrix:
     jal fwrite
 
     mul t0, s2, s3
-    bne a0, t0, fwrite_data_error
+    bne a0, t0, fwrite_error
 
     # Close file
     mv a1, s4
@@ -88,11 +89,7 @@ fopen_error:
     li a1, 93
     jal exit2
 
-fwrite_dims_error:
-    li a1, 94
-    jal exit2
-
-fwrite_data_error:
+fwrite_error:
     li a1, 94
     jal exit2
 
