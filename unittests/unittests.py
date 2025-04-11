@@ -260,6 +260,49 @@ class TestReadMatrix(TestCase):
         # generate the `assembly/TestReadMatrix_test_simple.s` file and run it through venus
         t.execute()
 
+
+    # You can use the fail argument to the execute method in order to make system functions fail. 
+    # #This works for fopen, fclose, fread, fwrite and malloc.
+    def test_malloc_error(self):
+        t = AssemblyTest(self, "read_matrix.s")
+        # Test malloc error
+        t.input_read_filename("a0", "./inputs/simple0/bin/m0.bin")
+        t.input_array("a1",t.array([0]))
+        t.input_array("a2",t.array([0]))
+        t.call("read_matrix")
+        t.execute(fail="malloc", code=89)
+
+    def test_fopen_error(self):
+        t = AssemblyTest(self, "read_matrix.s")
+        # Test file opening error
+        t.input_read_filename("a0", "./inputs/simple0/bin/m0.bin")
+        t.input_array("a1",t.array([0]))
+        t.input_array("a2",t.array([0]))
+        t.call("read_matrix")
+        t.execute(fail="fopen", code=90)
+    
+    def test_fread_error(self):
+        t = AssemblyTest(self, "read_matrix.s")
+        # Test fread error
+        t.input_read_filename("a0", "./inputs/simple0/bin/m0.bin")
+        t.input_array("a1",t.array([0]))
+        t.input_array("a2",t.array([0]))
+        t.call("read_matrix")
+        t.execute(fail="fread", code=91)
+
+    def test_fclose_error(self):
+        t = AssemblyTest(self, "read_matrix.s")
+        # Test fclose error
+        t.input_read_filename("a0", "./inputs/simple0/bin/m0.bin")
+        t.input_array("a1",t.array([0]))
+        t.input_array("a2",t.array([0]))
+        t.call("read_matrix")
+        t.execute(fail="fclose", code=92)
+
+    @classmethod
+    def tearDownClass(cls):
+        print_coverage("read_matrix.s", verbose=False)
+
 class TestMain(TestCase):
 
     def run_main(self, inputs, output_id, label):

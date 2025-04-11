@@ -103,7 +103,7 @@ read_matrix:
 
 # Error handlers
 malloc_error:
-    li a1, 88        # Error code for malloc failure
+    li a1, 89        # Error code for malloc failure
     jal exit2
 
 fopen_error:
