@@ -53,19 +53,19 @@ classify:
     # Load pretrained m0
     li a0, 8
     jal malloc
-    bnez a0, malloc_error
-    mv s3, a0       # s2 save m0 rows and cols
-
+    beqz a0, malloc_error
+    mv s3, a0       # s3 save m0 rows and cols
+    
     lw a0, 4(s1)    # argv[1] = m1_path
     lw a1, 0(s3)
     lw a2, 4(s3)
     jal read_matrix
-    mv s4, a0       # s3 save m0 pointer
+    mv s4, a0       # s4 save m0 pointer
 
     # Load pretrained m1
     li a0, 8
     jal malloc
-    bnez a0, malloc_error
+    beqz a0, malloc_error
     mv s5, a0       # s4 save m1 rows and cols
 
     lw a0, 8(s1)    # argv[2] = m1_path
