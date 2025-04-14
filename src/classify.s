@@ -161,8 +161,8 @@ classify:
     jal  print_int
 
     # Print newline afterwards for clarity
-    li   a0, '\n'
-    jal  print_char
+    #li   a0, '\n'
+    #jal  print_char
 
 skip_print:
     mv   a0, s3
