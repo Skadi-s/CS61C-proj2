@@ -140,7 +140,7 @@ classify:
     # Write output matrix
     lw   a0, 16(s1)     # argv[4] = output_path
     mv   a1, s10
-    lw   a2, 0(s3)     # scores_rows = m1_rows
+    lw   a2, 0(s5)     # scores_rows = m1_rows
     lw   a3, 4(s7)     # scores_cols = input_cols
     jal  write_matrix
 
@@ -157,7 +157,7 @@ classify:
 
     # Print classification
     bnez s2, skip_print
-    mv   a0, s11
+    mv   a1, s11
     jal  print_int
 
     # Print newline afterwards for clarity
