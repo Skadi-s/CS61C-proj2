@@ -55,10 +55,10 @@ classify:
     jal malloc
     beqz a0, malloc_error
     mv s3, a0       # s3 save m0 rows and cols
-    
+
     lw a0, 4(s1)    # argv[1] = m1_path
-    lw a1, 0(s3)
-    lw a2, 4(s3)
+    mv a1, s3
+    addi a2, s3, 4
     jal read_matrix
     mv s4, a0       # s4 save m0 pointer
 
@@ -69,8 +69,8 @@ classify:
     mv s5, a0       # s4 save m1 rows and cols
 
     lw a0, 8(s1)    # argv[2] = m1_path
-    lw a1, 0(s5)
-    lw a2, 4(s5)
+    mv a1, s5
+    addi a2, s5, 4
     jal read_matrix
     mv s6, a0       # s5 save m1 pointer
 
@@ -80,9 +80,9 @@ classify:
     beqz a0, malloc_error
     mv   s7, a0        # s6 save input rows and cols
 
-    lw   a1, 12(s1)    # argv[3] = input_path
-    lw   a2, 0(s7)
-    lw   a3, 4(s7)
+    lw   a0, 12(s1)    # argv[3] = input_path
+    mv  a1, s7
+    addi a2, s7, 4
     jal  read_matrix
     mv   s8, a0        # s7 save input matrix pointer
 
@@ -123,7 +123,7 @@ classify:
     slli a0, a0, 2
     jal  malloc
     beqz a0, malloc_error
-    mv   s10, a0       # s9 save scores layer
+    mv   s10, a0       # s10 save scores layer
 
     mv   a0, s6
     lw   a1, 0(s5)

@@ -219,6 +219,12 @@ class TestMatmul(TestCase):
         expected = [19, 22, 43, 50]  # Result
         self.do_matmul(m0, 2, 2, m1, 2, 2, expected)
 
+    def test_other_sizes(self):
+        m0 = [1, 2, 3, 4, 5, 6]    # 2x3 matrix
+        m1 = [7, 8, 9, 10, 11, 12]         # 3x2 matrix
+        expected = [58, 64, 139, 154]  # Result
+        self.do_matmul(m0, 2, 3, m1, 3, 2, expected)
+
     def test_m0_error(self):
         m0 = [1, 2, 3, 4]    # 2x2 matrix
         m1 = [5, 6, 7, 8]    # 2x2 matrix
@@ -259,7 +265,6 @@ class TestReadMatrix(TestCase):
         t.check_array_pointer("a0", [1, 2, 3, 4, 5, 6, 7, 8, 9])
         # generate the `assembly/TestReadMatrix_test_simple.s` file and run it through venus
         t.execute()
-
 
     # You can use the fail argument to the execute method in order to make system functions fail. 
     # #This works for fopen, fclose, fread, fwrite and malloc.

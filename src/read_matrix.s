@@ -59,11 +59,11 @@ read_matrix:
     bne a0, t0, fread_error  # If fread fails, jump to error handler
 
     # Load rows and columns from the buffer
-    lw t0, 4(sp)     # Load rows
-    lw t1, 0(sp)     # Load columns
-    addi sp, sp, 8   # Deallocate buffer space
+    lw t0, 0(sp)     # Load rows
+    lw t1, 4(sp)     # Load columns
     sw t0, 0(s1)     # Store rows in the provided pointer
     sw t1, 0(s2)     # Store columns in the provided pointer
+    addi sp, sp, 8   # Deallocate buffer space
 
     # Allocate memory for the matrix
     mul t0, t0, t1   # rows * columns
