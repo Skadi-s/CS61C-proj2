@@ -22,7 +22,7 @@ classify:
     #   main.s <M0_PATH> <M1_PATH> <INPUT_PATH> <OUTPUT_PATH>
 
     # Save registers that will be used
-    addi sp, sp, -48
+    addi sp, sp, -52
     sw ra, 0(sp)
     sw s0, 4(sp)
     sw s1, 8(sp)
@@ -35,14 +35,16 @@ classify:
     sw s8, 36(sp)
     sw s9, 40(sp)
     sw s10, 44(sp)
+    sw s11, 48(sp)
+
+    # save args pointer to s0
+    mv s0, a0       # s0 save the argc
+    mv s1, a1       # s1 save the argv
+    mv s2, a2       # s2 save the print flag
 
     # Check if argc is equal to 5 (program name + 4 arguments)
     li t0, 5              # Load 5 into t0
     bne a0, t0, args_error   # If argc != 5, exit with code 89
-
-    # save args pointer to s0
-    mv s0, a1       # s0 save the argv
-    mv s1, a2       # s1 save the print flag
 
 	# =====================================
     # LOAD MATRICES
@@ -52,110 +54,110 @@ classify:
     li a0, 8
     jal malloc
     bnez a0, malloc_error
-    mv s2, a0       # s2 save m0 rows and cols
+    mv s3, a0       # s2 save m0 rows and cols
 
-    lw a0, 4(s0)    # argv[1] = m1_path
-    lw a1, 0(s2)
-    lw a2, 4(s2)
+    lw a0, 4(s1)    # argv[1] = m1_path
+    lw a1, 0(s3)
+    lw a2, 4(s3)
     jal read_matrix
-    mv s3, a0       # s3 save m0 pointer
+    mv s4, a0       # s3 save m0 pointer
 
     # Load pretrained m1
     li a0, 8
     jal malloc
     bnez a0, malloc_error
-    mv s4, a0       # s4 save m1 rows and cols
+    mv s5, a0       # s4 save m1 rows and cols
 
-    lw a0, 8(s0)    # argv[2] = m1_path
-    lw a1, 0(s4)
-    lw a2, 4(s4)
+    lw a0, 8(s1)    # argv[2] = m1_path
+    lw a1, 0(s5)
+    lw a2, 4(s5)
     jal read_matrix
-    mv s5, a0       # s5 save m1 pointer
+    mv s6, a0       # s5 save m1 pointer
 
     # Load input matrix
     li   a0, 8
     jal  malloc
     beqz a0, malloc_error
-    mv   s6, a0        # s6 save input rows and cols
+    mv   s7, a0        # s6 save input rows and cols
 
-    lw   a1, 12(s0)    # argv[3] = input_path
-    lw   a2, 0(s6)
-    lw   a3, 4(s6)
+    lw   a1, 12(s1)    # argv[3] = input_path
+    lw   a2, 0(s7)
+    lw   a3, 4(s7)
     jal  read_matrix
-    mv   s7, a0        # s7 save input matrix pointer
+    mv   s8, a0        # s7 save input matrix pointer
 
     # =====================================
     # RUN LAYERS
     # =====================================
 
     # allocate memory for layer
-    lw   t0, 0(s2)     # m0_rows
-    lw   t1, 4(s6)     # input_cols
+    lw   t0, 0(s3)     # m0_rows
+    lw   t1, 4(s7)     # input_cols
     mul  a0, t0, t1    # item
     slli a0, a0, 2     # bytes  
     jal  malloc
     beqz a0, malloc_error
-    mv   s8, a0       # s8 save the hidden_layer
+    mv   s9, a0       # s8 save the hidden_layer
 
     # 1. LINEAR LAYER:    m0 * input
-    mv   a0, s3
-    lw   a1, 0(s2)
-    lw   a2, 4(s2)
-    mv   a3, s7
-    lw   a4, 0(s6)
-    lw   a5, 4(s6)
-    mv   a6, s8
+    mv   a0, s4
+    lw   a1, 0(s3)
+    lw   a2, 4(s3)
+    mv   a3, s8
+    lw   a4, 0(s7)
+    lw   a5, 4(s7)
+    mv   a6, s9
     jal  matmul
     
     # 2. NONLINEAR LAYER: ReLU(m0 * input)
-    lw   t0, 0(s2)     # m0_rows
-    lw   t1, 4(s6)     # input_cols
+    lw   t0, 0(s3)     # m0_rows
+    lw   t1, 4(s7)     # input_cols
     mul  a1, t0, t1    # items
-    mv   a0, s8
+    mv   a0, s9
     jal  relu
 
     # 3. LINEAR LAYER:    m1 * ReLU(m0 * input)
-    lw   t0, 0(s4)     # m1_rows
-    lw   t1, 4(s6)     # input_cols
+    lw   t0, 0(s5)     # m1_rows
+    lw   t1, 4(s7)     # input_cols
     mul  a0, t0, t1
     slli a0, a0, 2
     jal  malloc
     beqz a0, malloc_error
-    mv   s9, a0       # s9 save scores layer
+    mv   s10, a0       # s9 save scores layer
 
-    mv   a0, s5
-    lw   a1, 0(s4)
-    lw   a2, 4(s4)
-    mv   a3, s8
-    lw   a4, 0(s2)    # hidden_layer行数=m0_rows
-    lw   a5, 4(s6)    # hidden_layer列数=input_cols
-    mv   a6, s9
+    mv   a0, s6
+    lw   a1, 0(s5)
+    lw   a2, 4(s5)
+    mv   a3, s9
+    lw   a4, 0(s3)    # hidden_layer行数=m0_rows
+    lw   a5, 4(s7)    # hidden_layer列数=input_cols
+    mv   a6, s10
     jal  matmul
 
     # =====================================
     # WRITE OUTPUT
     # =====================================
     # Write output matrix
-    lw   a0, 16(s0)     # argv[4] = output_path
-    mv   a1, s9
-    lw   a2, 0(s2)     # scores_rows = m1_rows
-    lw   a3, 4(s6)     # scores_cols = input_cols
+    lw   a0, 16(s1)     # argv[4] = output_path
+    mv   a1, s10
+    lw   a2, 0(s3)     # scores_rows = m1_rows
+    lw   a3, 4(s7)     # scores_cols = input_cols
     jal  write_matrix
 
     # =====================================
     # CALCULATE CLASSIFICATION/LABEL
     # =====================================
     # Call argmax
-    lw   t0, 0(s4)
-    lw   t1, 4(s6)
+    lw   t0, 0(s5)
+    lw   t1, 4(s7)
     mul  a1, t0, t1    
-    mv   a0, s9
+    mv   a0, s10
     jal  argmax
-    mv   s10, a0
+    mv   s11, a0
 
     # Print classification
-    bnez s1, skip_print
-    mv   a0, s10
+    bnez s2, skip_print
+    mv   a0, s11
     jal  print_int
 
     # Print newline afterwards for clarity
@@ -163,8 +165,6 @@ classify:
     jal  print_char
 
 skip_print:
-    mv   a0, s2
-    jal  free
     mv   a0, s3
     jal free
     mv   a0, s4
@@ -178,6 +178,8 @@ skip_print:
     mv   a0, s8
     jal  free
     mv   a0, s9
+    jal  free
+    mv   a0, s10
     jal  free
 
     # Epilogue
@@ -193,8 +195,8 @@ skip_print:
     lw s8, 36(sp)
     lw s9, 40(sp)
     lw s10, 44(sp)
-    addi sp, sp, 48
-
+    lw s11, 48(sp)
+    addi sp, sp, 52
     ret
 
 args_error:
